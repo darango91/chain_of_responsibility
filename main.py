@@ -26,4 +26,3 @@ if __name__ == '__main__':
 
     print("Intento Envio internacional, cadena: LOCAL > MUNICIPAL > NACIONAL > ???")
     cliente_del_correo.solicitar_despacho(sucursal_cali_sur, NivelArea.NIVEL_INTERNACIONAL)
-
