@@ -26,3 +26,10 @@ if __name__ == '__main__':
 
     print("Intento Envio internacional, cadena: LOCAL > MUNICIPAL > NACIONAL > ???")
     cliente_del_correo.solicitar_despacho(sucursal_cali_sur, NivelArea.NIVEL_INTERNACIONAL)
+
+    # Cierre de la cadena de responsabilidad, genera un ciclo infinito si no encuentra un responsable
+    # de darle manejo a la peticion.
+    # sucursal_bogota.set_sucesor(sucursal_cali_sur)
+    #
+    # print("Intento Envio internacional, cadena: LOCAL > MUNICIPAL > NACIONAL > LOCAL")
+    # cliente_del_correo.solicitar_despacho(sucursal_cali_sur, NivelArea.NIVEL_INTERNACIONAL)
