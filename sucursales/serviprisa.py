@@ -24,25 +24,22 @@ class Handler(ABC):
 class AbstractHandler(Handler):
     """
     El comportamiento por defecto del encadenado (chaining) se puede
-    implementar en la clase handler base.
+    implementar en la clase handler base (abstracta).
     """
     _nombre: str
     _nivel_geografico: str
     _next_handler: Handler = None
 
-    def __init__(self, p_nombre: str, nivel_geografico: str):
+    def __init__(self, p_nombre: str):
         self._nombre = p_nombre
-        self._nivel_geografico = nivel_geografico
 
     def set_sucesor(self, handler: Handler) -> Handler:
         self._next_handler = handler
         return handler
 
+    @abstractmethod
     def entregar_envio(self, nivel_geografico: str) -> str:
-        if self.es_mi_zona(nivel_geografico):
-            return f'   La entrega del paquete es responsabilidad de la sucursal {self._nombre} \n' \
-                   f'   es una entrega a nivel {self._nivel_geografico}'
-        elif self._next_handler:
+        if self._next_handler:
             return self._next_handler.entregar_envio(nivel_geografico)
         return None
 
@@ -53,16 +50,38 @@ class AbstractHandler(Handler):
 # (CONCRETEHANDLER1) define un manejador concreto para las sucursales locales      
 class SucursalLocalHandler(AbstractHandler):
     def __init__(self, p_nombre: str):
-        super().__init__(p_nombre, NivelArea.NIVEL_LOCAL)
+        self._nivel_geografico = NivelArea.NIVEL_LOCAL
+        super().__init__(p_nombre)
+
+    def entregar_envio(self, nivel_geografico: str) -> str:
+        if self.es_mi_zona(nivel_geografico):
+            return f'   La entrega del paquete es responsabilidad de la sucursal {self._nombre} \n' \
+                   f'   es una entrega a nivel {self._nivel_geografico}'
+        else:
+            return super().entregar_envio(nivel_geografico)
 
 
 # (CONCRETEHANDLER2) define un manejador concreto para las sucursales municipales      
 class SucursalMunicipalHandler(AbstractHandler):
-    def __init__(self, p_nombre):
-        super().__init__(p_nombre, NivelArea.NIVEL_MUNICIPAL)
+    def __init__(self, p_nombre: str):
+        self._nivel_geografico = NivelArea.NIVEL_MUNICIPAL
+        super().__init__(p_nombre)
+
+    def entregar_envio(self, nivel_geografico: str) -> str:
+        if self.es_mi_zona(nivel_geografico):
+            return f'   La entrega del paquete es responsabilidad de la sucursal {self._nombre} \n' \
+                   f'   es una entrega a nivel {self._nivel_geografico}'
+        else:
+            return super().entregar_envio(nivel_geografico)
 
 
-# (CONCRETEHANDLER2) define un manejador concreto para las sucursales municipales
+# (CONCRETEHANDLER3) define un manejador concreto para las sucursales nacionales
 class SucursalNacionalHandler(AbstractHandler):
-    def __init__(self, p_nombre):
-        super().__init__(p_nombre, NivelArea.NIVEL_NACIONAL)
+    _nivel_geografico = NivelArea.NIVEL_NACIONAL
+
+    def entregar_envio(self, nivel_geografico: str) -> str:
+        if self.es_mi_zona(nivel_geografico):
+            return f'   La entrega del paquete es responsabilidad de la sucursal {self._nombre} \n' \
+                   f'   es una entrega a nivel {self._nivel_geografico}'
+        else:
+            return super().entregar_envio(nivel_geografico)
