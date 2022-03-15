@@ -15,15 +15,15 @@ if __name__ == '__main__':
     sucursal_cali_sur.set_sucesor(sucursal_cali)
     sucursal_cali.set_sucesor(sucursal_bogota)
 
-    print("Cadena LOCAL")
+    print("Cadena: LOCAL")
     cliente_del_correo.solicitar_despacho(sucursal_cali_sur, NivelArea.NIVEL_LOCAL)
 
-    print("Cadena LOCAL > MUNICIPAL")
+    print("Cadena: LOCAL > MUNICIPAL")
     cliente_del_correo.solicitar_despacho(sucursal_cali_sur, NivelArea.NIVEL_MUNICIPAL)
 
-    print("Cadena LOCAL > MUNICIPAL > NACIONAL")
+    print("Cadena: LOCAL > MUNICIPAL > NACIONAL")
     cliente_del_correo.solicitar_despacho(sucursal_cali_sur, NivelArea.NIVEL_NACIONAL)
 
-    print("Envio internacional")
+    print("Intento Envio internacional, cadena: LOCAL > MUNICIPAL > NACIONAL > ???")
     cliente_del_correo.solicitar_despacho(sucursal_cali_sur, NivelArea.NIVEL_INTERNACIONAL)
 
