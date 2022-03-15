@@ -1,56 +1,68 @@
-from sucursales.constans import AREA_NIVEL
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
+from typing import Optional
+
+from sucursales.constans import NivelArea
 
 
-# (HANDLER) define la interfaz para los manejadores de la cadena de responsabilidad
-class ISucursal:
+class Handler(ABC):
+    """
+    La interfaz Handler declara un metodo para construir la cadena de handlers
+    tambien declara un metodo para manejar la peticion
+    """
 
-    def __init__(self, p_sucesor=None, p_nombre=None, p_nivel_geografico=AREA_NIVEL["NO_NIVEL"]):
-        self._sucesor = p_sucesor
-        self.nombre = p_nombre
-        self.nivel_geografico = p_nivel_geografico
-    
-    def entregar_envio(self, p_nivel_geografico):
-        # define el reenvío generico de la responsabilidad al sucesor
-        if self._sucesor:
-            self._sucesor.entregar_envio(p_nivel_geografico)
-        else:
-            print(f'La entrega del paquete es responsabilidad de la sucursal {self.nombre}')
-            print('Se usará el método de entrega por defecto')
-            
-    def es_mi_nivel_geografico(self, p_nivel_geografico_destino):
-        return self.nivel_geografico == p_nivel_geografico_destino
-            
-    def establecer_sucesor(self, p_sucesor):
-        self._sucesor = p_sucesor
+    @abstractmethod
+    def set_sucesor(self, handler: Handler) -> Handler:
+        pass
+
+    @abstractmethod
+    def entregar_envio(self, request) -> Optional[str]:
+        pass
+
+
+class AbstractHandler(Handler):
+    """
+    El comportamiento por defecto del encadenado (chaining) se puede
+    implementar en la clase handler base.
+    """
+    _nombre: str
+    _nivel_geografico: str
+    _next_handler: Handler = None
+
+    def __init__(self, p_nombre: str, nivel_geografico: str):
+        self._nombre = p_nombre
+        self._nivel_geografico = nivel_geografico
+
+    def set_sucesor(self, handler: Handler) -> Handler:
+        self._next_handler = handler
+        return handler
+
+    def entregar_envio(self, nivel_geografico: str) -> str:
+        if self.es_mi_zona(nivel_geografico):
+            return f'   La entrega del paquete es responsabilidad de la sucursal {self._nombre} \n' \
+                   f'   es una entrega a nivel {self._nivel_geografico}'
+        elif self._next_handler:
+            return self._next_handler.entregar_envio(nivel_geografico)
+        return None
+
+    def es_mi_zona(self, nivel_geografico_destino: str) -> bool:
+        return self._nivel_geografico == nivel_geografico_destino
 
 
 # (CONCRETEHANDLER1) define un manejador concreto para las sucursales locales      
-class SucursalLocal(ISucursal):
-
-    def __init__(self, p_sucesor, p_nombre):
-        super().__init__(p_sucesor, p_nombre, AREA_NIVEL["NIVEL_LOCAL"])
-    
-    def entregar_envio(self, p_nivel_geografico_destino):
-        # Maneja la responsabilidad
-        if self.es_mi_nivel_geografico(p_nivel_geografico_destino):
-            print(f'La entrega del paquete es responsabilidad de la sucursal {self.nombre}')
-            print('Se usará el método de entrega del nivel local')
-        else:
-            # Reenvía la responsabilidad al siguiente sucesor de la cadena, usando el método definido en la interfaz
-            super().entregar_envio(p_nivel_geografico_destino)
+class SucursalLocalHandler(AbstractHandler):
+    def __init__(self, p_nombre: str):
+        super().__init__(p_nombre, NivelArea.NIVEL_LOCAL)
 
 
 # (CONCRETEHANDLER2) define un manejador concreto para las sucursales municipales      
-class SucursalMunicipal(ISucursal):
-    
-    def __init__(self, p_sucesor, p_nombre):
-        super().__init__(p_sucesor, p_nombre, AREA_NIVEL["NIVEL_MUNICIPAL"])
-        
-    def entregar_envio(self, p_nivel_geografico_destino):
-        # Maneja la responsabilidad
-        if self.es_mi_nivel_geografico(p_nivel_geografico_destino):
-            print(f'La entrega del paquete es responsabilidad de la sucursal {self.nombre}')
-            print('Se usará el método de entrega del nivel municipal')
-        else:
-            # Reenvía la responsabilidad al siguiente sucesor de la cadena, usando el método definido en la interfaz
-            super().entregar_envio(p_nivel_geografico_destino)
+class SucursalMunicipalHandler(AbstractHandler):
+    def __init__(self, p_nombre):
+        super().__init__(p_nombre, NivelArea.NIVEL_MUNICIPAL)
+
+
+# (CONCRETEHANDLER2) define un manejador concreto para las sucursales municipales
+class SucursalNacionalHandler(AbstractHandler):
+    def __init__(self, p_nombre):
+        super().__init__(p_nombre, NivelArea.NIVEL_NACIONAL)
