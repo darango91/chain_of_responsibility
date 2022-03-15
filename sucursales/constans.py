@@ -1,0 +1,6 @@
+
+AREA_NIVEL = {
+    "NO_NIVEL": -1,
+    "NIVEL_LOCAL": 1,
+    "NIVEL_MUNICIPAL": 2
+}
